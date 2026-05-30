@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>祖宗模拟器：万族争霸</title>
+    <link rel="stylesheet" href="./css/style.css">
+
+       <!-- 新增下面这段样式 -->
+    <style>
+        * { margin: 0; padding: 0; }
+        body { background: #000; } /* 页面背景黑 */
+        #game-container, #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-overlay"></div>
+    </div>
+    <script src="./js/utils.js"></script>
+    <script src="./js/data.js"></script>
+    <script src="./js/ui.js"></script>
+    <script src="./js/game.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>
