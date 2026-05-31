@@ -91,8 +91,9 @@ const GameData = {
             id: 'comet',
             name: '彗星降临',
             description: '天际划过明亮彗星，群星运转轨迹清晰可见，仿佛指引着远方未知星域。',
+            relic: { emoji: '☄️', name: '星碎', description: '伴随神秘呢喃' },
             hiddenOption: { text: '带领族人围观', progress: 15, branch: 'comet_branch_a' },
-            normalOption: { text: '立刻远离躲避', progress: 5 },
+            normalOption: { text: '立刻远离躲避', progress: 5, resultText: '平安无事' },
             branchQuestion: '彗星光芒笼罩族群，星轨纹路清晰浮现，是否追随星轨前行？',
             branchOptionA: { text: '接纳星界微光，追随星轨前行', hidden: true },
             branchOptionB: { text: '心生畏惧，全员撤离', hidden: false }
@@ -101,8 +102,9 @@ const GameData = {
             id: 'seed',
             name: '神秘种子',
             description: '地面浮现一粒诡异的远古种子，形态怪异、生命力极端狂暴，并非普通粮食作物。',
+            relic: { emoji: '🌱', name: '不知名种子', description: '内里却涌动着暗沉浊光' },
             hiddenOption: { text: '拾取培育', progress: 5, branch: 'seed_branch_a' },
-            normalOption: { text: '就地丢弃', progress: 15 },
+            normalOption: { text: '就地丢弃', progress: 15, resultText: '平安错过异变，毫无收获' },
             branchQuestion: '种子落地瞬间疯狂裂变，变异植被极速扩张，是否接纳变异植株共生？',
             branchOptionA: { text: '接纳变异植株，共生同化', hidden: true },
             branchOptionB: { text: '心存顾虑，转身离开', hidden: false }
@@ -111,8 +113,9 @@ const GameData = {
             id: 'cave',
             name: '远古秘境',
             description: '山林间发现一处隐蔽洞穴，环境舒适、温湿度适宜，天地间灵气缓缓复苏。',
+            relic: { emoji: '🦴', name: '甲骨牌', description: '能指引秘境方向' },
             hiddenOption: { text: '带队探索，在此休憩吸纳灵气', progress: 15, branch: 'cave_branch_a' },
-            normalOption: { text: '绕道而行', progress: 5 },
+            normalOption: { text: '绕道而行', progress: 5, resultText: '安稳离开，错失灵韵加持' },
             branchQuestion: '灵气骤然涌动，整片秘境进入灵力复苏状态，是否驻足定居修炼？',
             branchOptionA: { text: '驻足定居，依托灵地修炼成长', hidden: true },
             branchOptionB: { text: '简单探查后原路返回', hidden: false }

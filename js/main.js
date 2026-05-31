@@ -42,6 +42,13 @@
                 clientX = e.changedTouches[0].clientX;
                 clientY = e.changedTouches[0].clientY;
             }
+
+            if ((clientX === undefined || clientY === undefined) && e.offsetX !== undefined && e.offsetY !== undefined) {
+                return {
+                    x: e.offsetX * scaleX,
+                    y: e.offsetY * scaleY
+                };
+            }
             
             return {
                 x: (clientX - rect.left) * scaleX,
@@ -50,6 +57,7 @@
         };
         
         let inputLocked = false;
+        let lastPointerDownAt = 0;
         const lockInput = function() {
             inputLocked = true;
             setTimeout(() => inputLocked = false, 200);
@@ -64,11 +72,23 @@
             if (e.pointerType === 'touch') e.preventDefault();
             if (inputLocked) return;
             lockInput();
+            lastPointerDownAt = performance.now();
             
             const pos = getEventPos(e);
             setPressedFromPos(pos);
             Game.handleClick(pos.x, pos.y);
         }, { passive: false });
+
+        canvas.addEventListener('click', function(e) {
+            if (performance.now() - lastPointerDownAt < 300) return;
+            if (inputLocked) return;
+            lockInput();
+
+            const pos = getEventPos(e);
+            setPressedFromPos(pos);
+            Game.handleClick(pos.x, pos.y);
+            UI.pressedButton = null;
+        });
         
         canvas.addEventListener('pointermove', function(e) {
             if (e.pointerType !== 'mouse') return;

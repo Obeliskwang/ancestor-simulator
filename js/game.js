@@ -20,6 +20,7 @@ const Game = {
         conflictQuestions: [],
 
         encounterType: null,
+        relic: null,
         hiddenEnding: null,
 
         disasterQuestionIndex: 0,
@@ -282,60 +283,43 @@ const Game = {
                     UI.animationState.buttons = [];
 
                     if (s.selectedOption === null) {
-                        const btn1 = {
-                            id: 'optionA',
-                            x: optX,
-                            y: optY1 - optH / 2,
-                            w: optW,
-                            h: optH,
-                            alpha: s.optionAlpha
-                        };
-                        const btn2 = {
-                            id: 'optionB',
-                            x: optX,
-                            y: optY2 - optH / 2,
-                            w: optW,
-                            h: optH,
-                            alpha: s.optionAlpha
-                        };
-
-                        UI.animationState.buttons.push(btn1, btn2);
-
-                        const hover1 = UI.hoveredButton === 'optionA';
-                        const hover2 = UI.hoveredButton === 'optionB';
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY1);
-                        ctx.scale(hover1 ? 1.02 : 1, hover1 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: UI.colors.primaryDark,
-                            stroke: UI.colors.primary,
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(s.options[0]?.text || '', 0, 0, {
-                            color: UI.colors.textLight,
-                            size: 13,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY2);
-                        ctx.scale(hover2 ? 1.02 : 1, hover2 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: UI.colors.primaryDark,
-                            stroke: UI.colors.primary,
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(s.options[1]?.text || '', 0, 0, {
-                            color: UI.colors.textLight,
-                            size: 13,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
+                        UI.animationState.buttons.push(
+                            { id: 'optionA', x: optX, y: optY1 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha },
+                            { id: 'optionB', x: optX, y: optY2 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha }
+                        );
                     }
+
+                    const baseFill = UI.colors.primaryDark;
+                    const optionAPressed = UI.pressedButton === 'optionA';
+                    const optionBPressed = UI.pressedButton === 'optionB';
+                    const optionASelected = s.selectedOption === 'optionA';
+                    const optionBSelected = s.selectedOption === 'optionB';
+                    const fillA = (optionAPressed || optionASelected) ? UI.darkenColor(baseFill, 18) : baseFill;
+                    const fillB = (optionBPressed || optionBSelected) ? UI.darkenColor(baseFill, 18) : baseFill;
+
+                    Utils.drawRect(optX, optY1 - optH / 2, optW, optH, {
+                        fill: fillA,
+                        stroke: UI.colors.primary,
+                        strokeWidth: 2,
+                        radius: 8
+                    });
+                    Utils.drawText(s.options[0]?.text || '', w / 2, optY1, {
+                        color: UI.colors.textLight,
+                        size: 13,
+                        weight: 'normal'
+                    });
+
+                    Utils.drawRect(optX, optY2 - optH / 2, optW, optH, {
+                        fill: fillB,
+                        stroke: UI.colors.primary,
+                        strokeWidth: 2,
+                        radius: 8
+                    });
+                    Utils.drawText(s.options[1]?.text || '', w / 2, optY2, {
+                        color: UI.colors.textLight,
+                        size: 13,
+                        weight: 'normal'
+                    });
 
                     ctx.globalAlpha = 1;
                 } else {
@@ -540,42 +524,39 @@ const Game = {
                             { id: 'optionA', x: optX, y: optY1 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha },
                             { id: 'optionB', x: optX, y: optY2 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha }
                         );
-
-                        const hover1 = UI.hoveredButton === 'optionA';
-                        const hover2 = UI.hoveredButton === 'optionB';
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY1);
-                        ctx.scale(hover1 ? 1.02 : 1, hover1 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: UI.colors.primaryDark,
-                            stroke: UI.colors.primary,
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(s.options[0]?.text || '', 0, 0, {
-                            color: UI.colors.textLight,
-                            size: 13,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY2);
-                        ctx.scale(hover2 ? 1.02 : 1, hover2 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: UI.colors.primaryDark,
-                            stroke: UI.colors.primary,
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(s.options[1]?.text || '', 0, 0, {
-                            color: UI.colors.textLight,
-                            size: 13,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
                     }
+
+                    const baseFill = UI.colors.primaryDark;
+                    const optionAPressed = UI.pressedButton === 'optionA';
+                    const optionBPressed = UI.pressedButton === 'optionB';
+                    const optionASelected = s.selectedOption === 'optionA';
+                    const optionBSelected = s.selectedOption === 'optionB';
+                    const fillA = (optionAPressed || optionASelected) ? UI.darkenColor(baseFill, 18) : baseFill;
+                    const fillB = (optionBPressed || optionBSelected) ? UI.darkenColor(baseFill, 18) : baseFill;
+
+                    Utils.drawRect(optX, optY1 - optH / 2, optW, optH, {
+                        fill: fillA,
+                        stroke: UI.colors.primary,
+                        strokeWidth: 2,
+                        radius: 8
+                    });
+                    Utils.drawText(s.options[0]?.text || '', w / 2, optY1, {
+                        color: UI.colors.textLight,
+                        size: 13,
+                        weight: 'normal'
+                    });
+
+                    Utils.drawRect(optX, optY2 - optH / 2, optW, optH, {
+                        fill: fillB,
+                        stroke: UI.colors.primary,
+                        strokeWidth: 2,
+                        radius: 8
+                    });
+                    Utils.drawText(s.options[1]?.text || '', w / 2, optY2, {
+                        color: UI.colors.textLight,
+                        size: 13,
+                        weight: 'normal'
+                    });
 
                     ctx.globalAlpha = 1;
                 } else {
@@ -674,13 +655,10 @@ const Game = {
                     encounterAlpha: 0,
                     optionAlpha: 0,
                     selectedOption: null,
-                    showBranch: false,
-                    branchAlpha: 0,
-                    branchOptionAlpha: 0,
                     showResult: false,
                     resultAlpha: 0,
                     resultText: '',
-                    branchTriggered: null
+                    resultTimer: undefined
                 };
             },
 
@@ -757,7 +735,7 @@ const Game = {
                     weight: 'normal'
                 });
 
-                if (!s.showBranch && !s.showResult) {
+                if (!s.showResult) {
                     ctx.globalAlpha = s.optionAlpha;
 
                     const optY1 = h * 0.55;
@@ -773,126 +751,40 @@ const Game = {
                             { id: 'hiddenOption', x: optX, y: optY1 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha },
                             { id: 'normalOption', x: optX, y: optY2 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha }
                         );
-
-                        const hover1 = UI.hoveredButton === 'hiddenOption';
-                        const hover2 = UI.hoveredButton === 'normalOption';
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY1);
-                        ctx.scale(hover1 ? 1.02 : 1, hover1 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: '#4a3728',
-                            stroke: UI.colors.accentGold,
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(encounter.hiddenOption.text, 0, 0, {
-                            color: UI.colors.accentGold,
-                            size: 12,
-                            weight: 'bold'
-                        });
-                        ctx.restore();
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY2);
-                        ctx.scale(hover2 ? 1.02 : 1, hover2 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: UI.colors.primaryDark,
-                            stroke: UI.colors.primary,
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(encounter.normalOption.text, 0, 0, {
-                            color: UI.colors.textLight,
-                            size: 12,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
                     }
 
-                    ctx.globalAlpha = 1;
-                }
+                    const hiddenPressed = UI.pressedButton === 'hiddenOption';
+                    const normalPressed = UI.pressedButton === 'normalOption';
+                    const hiddenSelected = s.selectedOption === 'hiddenOption';
+                    const normalSelected = s.selectedOption === 'normalOption';
+                    const hiddenFillBase = '#4a3728';
+                    const normalFillBase = UI.colors.primaryDark;
+                    const hiddenFill = (hiddenPressed || hiddenSelected) ? UI.darkenColor(hiddenFillBase, 18) : hiddenFillBase;
+                    const normalFill = (normalPressed || normalSelected) ? UI.darkenColor(normalFillBase, 18) : normalFillBase;
 
-                if (s.showBranch && !s.showResult) {
-                    ctx.globalAlpha = s.branchAlpha;
-
-                    Utils.drawRect(w * 0.08, h * 0.48, w * 0.84, h * 0.2, {
-                        fill: UI.colors.backgroundDark,
-                        stroke: '#8b00ff',
+                    Utils.drawRect(optX, optY1 - optH / 2, optW, optH, {
+                        fill: hiddenFill,
+                        stroke: UI.colors.accentGold,
                         strokeWidth: 2,
-                        radius: 10
+                        radius: 8
+                    });
+                    Utils.drawText(encounter.hiddenOption.text, w / 2, optY1, {
+                        color: UI.colors.accentGold,
+                        size: 12,
+                        weight: 'bold'
                     });
 
-                    Utils.drawText(encounter.branchQuestion, w / 2, h * 0.52, {
-                        color: '#c080ff',
-                        size: 13,
+                    Utils.drawRect(optX, optY2 - optH / 2, optW, optH, {
+                        fill: normalFill,
+                        stroke: UI.colors.primary,
+                        strokeWidth: 2,
+                        radius: 8
+                    });
+                    Utils.drawText(encounter.normalOption.text, w / 2, optY2, {
+                        color: UI.colors.textLight,
+                        size: 12,
                         weight: 'normal'
                     });
-
-                    ctx.globalAlpha = s.branchOptionAlpha;
-
-                    const optY = h * 0.72;
-                    const optH = h * 0.1;
-                    const optW = w * 0.76;
-                    const optX = w * 0.12;
-
-                    UI.animationState.buttons = [];
-
-                    if (s.branchSelected === undefined) {
-                        const optY1 = optY - optH * 0.7;
-                        const optY2 = optY + optH * 0.7;
-                        UI.animationState.buttons.push({
-                            id: 'branchA',
-                            x: optX,
-                            y: optY1 - optH / 2,
-                            w: optW,
-                            h: optH,
-                            alpha: s.branchOptionAlpha
-                        });
-                        UI.animationState.buttons.push({
-                            id: 'branchB',
-                            x: optX,
-                            y: optY2 - optH / 2,
-                            w: optW,
-                            h: optH,
-                            alpha: s.branchOptionAlpha
-                        });
-
-                        const hoverA = UI.hoveredButton === 'branchA';
-                        const hoverB = UI.hoveredButton === 'branchB';
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY1);
-                        ctx.scale(hoverA ? 1.02 : 1, hoverA ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: '#4a2060',
-                            stroke: '#c080ff',
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(encounter.branchOptionA.text, 0, 0, {
-                            color: '#c080ff',
-                            size: 12,
-                            weight: 'bold'
-                        });
-                        ctx.restore();
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY2);
-                        ctx.scale(hoverB ? 1.02 : 1, hoverB ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: '#2d1538',
-                            stroke: '#9a6fd1',
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(encounter.branchOptionB.text, 0, 0, {
-                            color: '#d1b3ff',
-                            size: 12,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
-                    }
 
                     ctx.globalAlpha = 1;
                 }
@@ -907,10 +799,15 @@ const Game = {
                         radius: 12
                     });
 
-                    Utils.drawText(s.resultText, w / 2, h * 0.5, {
-                        color: UI.colors.accentGold,
-                        size: 14,
-                        weight: 'bold'
+                    const resultLines = (s.resultText || '').split('\n').filter(Boolean);
+                    const lineHeight = 22;
+                    const startY = h * 0.5 - ((resultLines.length - 1) * lineHeight) / 2;
+                    resultLines.forEach((line, idx) => {
+                        Utils.drawText(line, w / 2, startY + idx * lineHeight, {
+                            color: UI.colors.accentGold,
+                            size: 14,
+                            weight: 'bold'
+                        });
                     });
 
                     ctx.globalAlpha = 1;
@@ -929,25 +826,24 @@ const Game = {
 
                     if (id === 'hiddenOption') {
                         Game.state.progress = Math.min(100, Game.state.progress + addProgress);
-                        s.branchTriggered = encounter.hiddenOption.branch;
-                        s.showBranch = true;
-                        s.selectedOption = 'processed';
+                        const relic = encounter.relic || {};
+                        Game.state.relic = {
+                            encounterId: encounter.id,
+                            trigger: encounter.hiddenOption.branch,
+                            emoji: relic.emoji || '✨',
+                            name: relic.name || '信物',
+                            description: relic.description || ''
+                        };
+                        const line1 = `获得信物：${Game.state.relic.emoji} ${Game.state.relic.name}`;
+                        const line2 = `进度 +${addProgress}%`;
+                        s.showResult = true;
+                        s.resultText = `${line1}\n${line2}`;
                     } else {
                         Game.state.progress = Math.min(100, Game.state.progress + addProgress);
                         s.showResult = true;
-                        s.resultText = `进度 +${addProgress}%`;
-                    }
-                }
-
-                if (s.showBranch && s.branchSelected === undefined && (id === 'branchA' || id === 'branchB')) {
-                    s.branchSelected = id === 'branchA' ? 'A' : 'B';
-                    if (id === 'branchA') {
-                        Game.state.hiddenEnding = s.branchTriggered;
-                        s.showResult = true;
-                        s.resultText = '触发隐藏结局！';
-                    } else {
-                        s.showResult = true;
-                        s.resultText = '你选择撤离，未触发隐藏结局';
+                        const resultText = (encounter.normalOption && encounter.normalOption.resultText) ? encounter.normalOption.resultText : `进度 +${addProgress}%`;
+                        const line2 = `进度 +${addProgress}%`;
+                        s.resultText = `${resultText}\n${line2}`;
                     }
                 }
             }
@@ -1028,18 +924,6 @@ const Game = {
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, w, h);
 
-                ctx.globalAlpha = 0.1;
-                for (let i = 0; i < 30; i++) {
-                    const x = Math.random() * w;
-                    const y = Math.random() * h;
-                    const r = Math.random() * 3 + 1;
-                    ctx.beginPath();
-                    ctx.arc(x, y, r, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ff4444';
-                    ctx.fill();
-                }
-                ctx.globalAlpha = 1;
-
                 UI.drawProgressBar(Game.state.progress, time);
 
                 const s = Game.state.screenState;
@@ -1082,42 +966,40 @@ const Game = {
                             { id: 'optionA', x: optX, y: optY1 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha },
                             { id: 'optionB', x: optX, y: optY2 - optH / 2, w: optW, h: optH, alpha: s.optionAlpha }
                         );
-
-                        const hover1 = UI.hoveredButton === 'optionA';
-                        const hover2 = UI.hoveredButton === 'optionB';
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY1);
-                        ctx.scale(hover1 ? 1.02 : 1, hover1 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: '#4a2828',
-                            stroke: '#aa6666',
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(s.options[0]?.text || '', 0, 0, {
-                            color: '#ffcccc',
-                            size: 13,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
-
-                        ctx.save();
-                        ctx.translate(optX + optW / 2, optY2);
-                        ctx.scale(hover2 ? 1.02 : 1, hover2 ? 1.02 : 1);
-                        Utils.drawRect(-optW / 2, -optH / 2, optW, optH, {
-                            fill: '#3a1818',
-                            stroke: '#884444',
-                            strokeWidth: 2,
-                            radius: 8
-                        });
-                        Utils.drawText(s.options[1]?.text || '', 0, 0, {
-                            color: '#ccaaaa',
-                            size: 13,
-                            weight: 'normal'
-                        });
-                        ctx.restore();
                     }
+
+                    const baseFillA = '#4a2828';
+                    const baseFillB = '#3a1818';
+                    const optionAPressed = UI.pressedButton === 'optionA';
+                    const optionBPressed = UI.pressedButton === 'optionB';
+                    const optionASelected = s.selectedOption === 'optionA';
+                    const optionBSelected = s.selectedOption === 'optionB';
+                    const fillA = (optionAPressed || optionASelected) ? UI.darkenColor(baseFillA, 18) : baseFillA;
+                    const fillB = (optionBPressed || optionBSelected) ? UI.darkenColor(baseFillB, 18) : baseFillB;
+
+                    Utils.drawRect(optX, optY1 - optH / 2, optW, optH, {
+                        fill: fillA,
+                        stroke: '#aa6666',
+                        strokeWidth: 2,
+                        radius: 8
+                    });
+                    Utils.drawText(s.options[0]?.text || '', w / 2, optY1, {
+                        color: '#ffcccc',
+                        size: 13,
+                        weight: 'normal'
+                    });
+
+                    Utils.drawRect(optX, optY2 - optH / 2, optW, optH, {
+                        fill: fillB,
+                        stroke: '#884444',
+                        strokeWidth: 2,
+                        radius: 8
+                    });
+                    Utils.drawText(s.options[1]?.text || '', w / 2, optY2, {
+                        color: '#ccaaaa',
+                        size: 13,
+                        weight: 'normal'
+                    });
 
                     ctx.globalAlpha = 1;
                 } else {
@@ -1217,6 +1099,8 @@ const Game = {
                         endingAlpha: 0,
                         showReplayButton: false,
                         ending: { name: '结局', description: '旅程已结束。', glowColor: UI.colors.accentGold },
+                        mode: 'normal',
+                        relicHandled: true,
                         hiddenEnding: null
                     };
                     return;
@@ -1232,21 +1116,15 @@ const Game = {
                     savedData.unlockedEndings = unlockedEndings;
                 }
 
-                if (Game.state.hiddenEnding) {
-                    const hiddenEnding = GameData.hiddenEndings.find(e => e.id === Game.state.hiddenEnding);
-                    if (hiddenEnding && !unlockedEndings.includes(hiddenEnding.id)) {
-                        unlockedEndings.push(hiddenEnding.id);
-                        savedData.unlockedEndings = unlockedEndings;
-                    }
-                }
-
                 Storage.set('gameData', savedData);
 
                 Game.state.screenState = {
                     endingAlpha: 0,
                     showReplayButton: false,
                     ending: ending,
-                    hiddenEnding: Game.state.hiddenEnding ? GameData.hiddenEndings.find(e => e.id === Game.state.hiddenEnding) : null
+                    mode: 'normal',
+                    relicHandled: false,
+                    hiddenEnding: null
                 };
             },
 
@@ -1278,13 +1156,19 @@ const Game = {
                     s.ending = ending;
                 }
 
+                const active = s.mode === 'hidden' && hiddenEnding ? {
+                    name: `【隐藏结局】${hiddenEnding.name}`,
+                    description: hiddenEnding.description,
+                    glowColor: '#c080ff'
+                } : ending;
+
                 ctx.globalAlpha = s.endingAlpha;
 
-                ctx.shadowColor = ending.glowColor;
+                ctx.shadowColor = active.glowColor;
                 ctx.shadowBlur = 40 + Math.sin(time * 0.003) * 10;
 
-                Utils.drawText(ending.name, w / 2, h * 0.15, {
-                    color: ending.glowColor,
+                Utils.drawText(active.name, w / 2, h * 0.15, {
+                    color: active.glowColor,
                     size: 32,
                     weight: 'bold'
                 });
@@ -1309,7 +1193,7 @@ const Game = {
 
                 Utils.drawRect(w * 0.1, h * 0.55, w * 0.8, h * 0.2, {
                     fill: UI.colors.backgroundDark,
-                    stroke: ending.glowColor,
+                    stroke: active.glowColor,
                     strokeWidth: 2,
                     radius: 10
                 });
@@ -1325,7 +1209,7 @@ const Game = {
                 const lineHeight = 24;
                 const maxWidth = panelW - paddingX * 2;
 
-                const text = ending.description || '';
+                const text = active.description || '';
                 const lines = [];
 
                 ctx.save();
@@ -1358,29 +1242,44 @@ const Game = {
                     });
                 });
 
-                if (hiddenEnding) {
-                    ctx.shadowColor = '#c080ff';
-                    ctx.shadowBlur = 20;
-
-                    Utils.drawText('【隐藏结局】' + hiddenEnding.name, w / 2, h * 0.78, {
-                        color: '#c080ff',
-                        size: 16,
-                        weight: 'bold'
-                    });
-
-                    ctx.shadowBlur = 0;
-
-                    Utils.drawText(hiddenEnding.description, w * 0.15, h * 0.83, {
-                        color: '#c080ff',
-                        size: 11,
-                        weight: 'normal'
-                    });
-                }
-
                 const btnW = 140;
                 const btnH = 45;
                 const btnY = h - 38;
                 const progressY = btnY - btnH / 2 - 18;
+
+                if (race && race.evolutionChain && GameData.getEndingTierIndex) {
+                    const tier = GameData.getEndingTierIndex(Game.state.progress);
+                    const routeForms = race.evolutionChain.slice(0, Math.min(race.evolutionChain.length, tier + 1));
+                    const route = routeForms.join('→');
+                    const fullRouteText = `进化路线：${route}`;
+                    const routeY = progressY - 22;
+                    
+                    ctx.save();
+                    ctx.font = `bold 13px "Microsoft YaHei", "PingFang SC", sans-serif`;
+                    const routeWidth = ctx.measureText(fullRouteText).width;
+                    ctx.restore();
+                    
+                    if (routeWidth > w * 0.92 && routeForms.length > 2) {
+                        const line1 = `进化路线：${routeForms.slice(0, 2).join('→')}`;
+                        const line2 = routeForms.slice(2).join('→');
+                        Utils.drawText(line1, w / 2, routeY - 10, {
+                            color: UI.colors.textLight,
+                            size: 13,
+                            weight: 'bold'
+                        });
+                        Utils.drawText(line2, w / 2, routeY + 10, {
+                            color: UI.colors.textLight,
+                            size: 13,
+                            weight: 'bold'
+                        });
+                    } else {
+                        Utils.drawText(fullRouteText, w / 2, routeY, {
+                            color: UI.colors.textLight,
+                            size: 13,
+                            weight: 'bold'
+                        });
+                    }
+                }
 
                 Utils.drawText(`最终进度: ${Game.state.progress}%`, w / 2, progressY, {
                     color: UI.colors.textLight,
@@ -1388,7 +1287,7 @@ const Game = {
                     weight: 'bold'
                 });
 
-                if (s.showReplayButton) {
+                if (s.showReplayButton && (s.mode === 'normal' || s.mode === 'hidden')) {
                     UI.animationState.buttons = [{
                         id: 'replay',
                         x: w / 2 - btnW / 2,
@@ -1418,13 +1317,182 @@ const Game = {
                     ctx.restore();
                 }
 
+                if (s.mode !== 'normal' && s.mode !== 'hidden') {
+                    UI.animationState.buttons = [];
+
+                    ctx.save();
+                    ctx.globalAlpha = 0.6;
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.restore();
+
+                    const mw = w * 0.84;
+                    const mh = h * 0.28;
+                    const mx = (w - mw) / 2;
+                    const my = h * 0.36;
+                    const buttonW = mw * 0.42;
+                    const buttonH = 44;
+
+                    Utils.drawRect(mx, my, mw, mh, {
+                        fill: UI.colors.backgroundDark,
+                        stroke: '#c080ff',
+                        strokeWidth: 2,
+                        radius: 12
+                    });
+
+                    const relic = Game.state.relic;
+                    const encounter = relic ? GameData.encounters.find(e => e.id === relic.encounterId) : null;
+
+                    if (s.mode === 'relicPrompt' && relic) {
+                        const title = `检测到你持有：${relic.emoji || '✨'} ${relic.name || '信物'}`;
+                        Utils.drawText(title, w / 2, my + 46, { color: '#c080ff', size: 14, weight: 'bold' });
+                        if (relic.description) {
+                            Utils.drawText(`（${relic.description}）`, w / 2, my + 70, { color: UI.colors.textLight, size: 12, weight: 'normal' });
+                        }
+                        Utils.drawText('是否进入隐藏结局？', w / 2, my + 104, { color: UI.colors.textLight, size: 13, weight: 'bold' });
+
+                        const y = my + mh - 52;
+                        UI.animationState.buttons.push(
+                            { id: 'enterHidden', x: mx + mw * 0.06, y: y - buttonH / 2, w: buttonW, h: buttonH },
+                            { id: 'stayNormal', x: mx + mw * 0.52, y: y - buttonH / 2, w: buttonW, h: buttonH }
+                        );
+
+                        const enterPressed = UI.pressedButton === 'enterHidden';
+                        const stayPressed = UI.pressedButton === 'stayNormal';
+
+                        Utils.drawRect(mx + mw * 0.06, y - buttonH / 2, buttonW, buttonH, {
+                            fill: enterPressed ? UI.darkenColor(UI.colors.primaryDark, 18) : UI.colors.primaryDark,
+                            stroke: UI.colors.primary,
+                            strokeWidth: 2,
+                            radius: 8
+                        });
+                        Utils.drawText('进入', mx + mw * 0.06 + buttonW / 2, y, { color: UI.colors.textLight, size: 14, weight: 'bold' });
+
+                        Utils.drawRect(mx + mw * 0.52, y - buttonH / 2, buttonW, buttonH, {
+                            fill: stayPressed ? UI.darkenColor(UI.colors.primaryDark, 18) : UI.colors.primaryDark,
+                            stroke: UI.colors.primary,
+                            strokeWidth: 2,
+                            radius: 8
+                        });
+                        Utils.drawText('不进入', mx + mw * 0.52 + buttonW / 2, y, { color: UI.colors.textLight, size: 14, weight: 'bold' });
+                    }
+
+                    if (s.mode === 'relicBranch' && encounter) {
+                        Utils.drawText(encounter.branchQuestion || '是否进入？', w / 2, my + 56, { color: '#c080ff', size: 13, weight: 'bold' });
+
+                        const y1 = my + 118;
+                        const y2 = my + 174;
+                        const bx = mx + mw * 0.06;
+                        const bw = mw * 0.88;
+                        const bh = 44;
+
+                        UI.animationState.buttons.push(
+                            { id: 'branchA', x: bx, y: y1 - bh / 2, w: bw, h: bh },
+                            { id: 'branchB', x: bx, y: y2 - bh / 2, w: bw, h: bh }
+                        );
+
+                        const aPressed = UI.pressedButton === 'branchA';
+                        const bPressed = UI.pressedButton === 'branchB';
+
+                        Utils.drawRect(bx, y1 - bh / 2, bw, bh, {
+                            fill: aPressed ? UI.darkenColor('#4a2060', 18) : '#4a2060',
+                            stroke: '#c080ff',
+                            strokeWidth: 2,
+                            radius: 8
+                        });
+                        Utils.drawText(encounter.branchOptionA?.text || '选项A', bx + bw / 2, y1, { color: '#c080ff', size: 12, weight: 'bold' });
+
+                        Utils.drawRect(bx, y2 - bh / 2, bw, bh, {
+                            fill: bPressed ? UI.darkenColor('#2d1538', 18) : '#2d1538',
+                            stroke: '#9a6fd1',
+                            strokeWidth: 2,
+                            radius: 8
+                        });
+                        Utils.drawText(encounter.branchOptionB?.text || '选项B', bx + bw / 2, y2, { color: '#d1b3ff', size: 12, weight: 'normal' });
+                    }
+
+                    if (s.mode === 'relicFail') {
+                        Utils.drawText('很遗憾，目标占领进度不足，副本未开启', w / 2, my + 86, { color: '#ffcccc', size: 13, weight: 'bold' });
+                        const y = my + mh - 52;
+                        UI.animationState.buttons.push({ id: 'backToNormal', x: mx + mw * 0.29, y: y - buttonH / 2, w: mw * 0.42, h: buttonH });
+
+                        const backPressed = UI.pressedButton === 'backToNormal';
+                        Utils.drawRect(mx + mw * 0.29, y - buttonH / 2, mw * 0.42, buttonH, {
+                            fill: backPressed ? UI.darkenColor(UI.colors.primaryDark, 18) : UI.colors.primaryDark,
+                            stroke: UI.colors.primary,
+                            strokeWidth: 2,
+                            radius: 8
+                        });
+                        Utils.drawText('返回结局', mx + mw * 0.29 + (mw * 0.42) / 2, y, { color: UI.colors.textLight, size: 14, weight: 'bold' });
+                    }
+                }
+
                 ctx.globalAlpha = 1;
             },
 
             onClick(id) {
+                const s = Game.state.screenState;
                 if (id === 'replay') {
+                    if (s.mode === 'normal' && !s.relicHandled && Game.state.relic) {
+                        s.mode = 'relicPrompt';
+                        return;
+                    }
                     Game.reset();
                     Game.switchScreen('gacha');
+                    return;
+                }
+
+                if (s.mode === 'relicPrompt') {
+                    if (id === 'enterHidden') {
+                        s.mode = 'relicBranch';
+                    }
+                    if (id === 'stayNormal') {
+                        s.mode = 'normal';
+                        s.relicHandled = true;
+                    }
+                    return;
+                }
+
+                if (s.mode === 'relicBranch') {
+                    const relic = Game.state.relic;
+                    if (!relic) {
+                        s.mode = 'normal';
+                        s.relicHandled = true;
+                        return;
+                    }
+
+                    if (id === 'branchA' || id === 'branchB') {
+                        if (id === 'branchA') {
+                            const hidden = GameData.hiddenEndings.find(e => e.trigger === relic.trigger);
+                            if (hidden) {
+                                Game.state.hiddenEnding = hidden.id;
+                                s.hiddenEnding = hidden;
+                                s.mode = 'hidden';
+
+                                const savedData = Storage.get('gameData', {});
+                                const unlockedEndings = savedData.unlockedEndings || [];
+                                if (!unlockedEndings.includes(hidden.id)) {
+                                    unlockedEndings.push(hidden.id);
+                                    savedData.unlockedEndings = unlockedEndings;
+                                }
+                                Storage.set('gameData', savedData);
+                            } else {
+                                s.mode = 'relicFail';
+                            }
+                        } else {
+                            s.mode = 'relicFail';
+                        }
+                        s.relicHandled = true;
+                    }
+                    return;
+                }
+
+                if (s.mode === 'relicFail') {
+                    if (id === 'backToNormal') {
+                        s.mode = 'normal';
+                        s.relicHandled = true;
+                    }
+                    return;
                 }
             }
         }
@@ -1462,6 +1530,7 @@ const Game = {
         this.state.conflictScore = 0;
         this.state.conflictQuestions = [];
         this.state.encounterType = null;
+        this.state.relic = null;
         this.state.hiddenEnding = null;
         this.state.disasterQuestionIndex = 0;
         this.state.disasterScore = 0;
