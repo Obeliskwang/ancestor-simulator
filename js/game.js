@@ -367,7 +367,7 @@ const Game = {
                     });
 
                     const bonusText = s.grade === 'excellent' ? '+40%' : (s.grade === 'normal' ? '+20%' : '+5%');
-                    Utils.drawText(`进度 +${bonusText}`, w / 2, h * 0.58, {
+                    Utils.drawText(`进度 ${bonusText}`, w / 2, h * 0.58, {
                         color: UI.colors.textLight,
                         size: 16,
                         weight: 'bold'
@@ -619,6 +619,7 @@ const Game = {
 
                 if (s.selectedOption === null && (id === 'optionA' || id === 'optionB')) {
                     s.selectedOption = id;
+                    s.optionAlpha = 1;
                     const option = s.options[id === 'optionA' ? 0 : 1];
 
                     if (option.aggressive) {
@@ -629,6 +630,7 @@ const Game = {
                         if (s.questionIndex < 5) {
                             s.questionIndex++;
                             s.questionAlpha = 0;
+                            s.optionAlpha = 0;
                             s.options = [];
                             s.selectedOption = null;
                         } else {
@@ -729,11 +731,42 @@ const Game = {
                     weight: 'bold'
                 });
 
-                Utils.drawText(encounter.description, w / 2, h * 0.36, {
-                    color: UI.colors.textLight,
-                    size: 12,
-                    weight: 'normal'
-                });
+                {
+                    const panelX = w * 0.1;
+                    const panelW = w * 0.8;
+                    const paddingX = 18;
+                    const maxWidth = panelW - paddingX * 2;
+                    const descText = encounter.description || '';
+                    const descLines = [];
+                    const maxLines = 3;
+
+                    ctx.save();
+                    ctx.font = `normal 12px "Microsoft YaHei", "PingFang SC", sans-serif`;
+                    let current = '';
+                    for (let i = 0; i < descText.length; i++) {
+                        const ch = descText[i];
+                        const testLine = current + ch;
+                        if (ctx.measureText(testLine).width > maxWidth && current) {
+                            descLines.push(current);
+                            current = ch;
+                            if (descLines.length >= maxLines) break;
+                        } else {
+                            current = testLine;
+                        }
+                    }
+                    if (descLines.length < maxLines && current) descLines.push(current);
+                    ctx.restore();
+
+                    const lineHeight = 18;
+                    const startY = h * 0.34;
+                    descLines.forEach((line, idx) => {
+                        Utils.drawText(line, w / 2, startY + idx * lineHeight, {
+                            color: UI.colors.textLight,
+                            size: 12,
+                            weight: 'normal'
+                        });
+                    });
+                }
 
                 if (!s.showResult) {
                     ctx.globalAlpha = s.optionAlpha;
@@ -757,22 +790,50 @@ const Game = {
                     const normalPressed = UI.pressedButton === 'normalOption';
                     const hiddenSelected = s.selectedOption === 'hiddenOption';
                     const normalSelected = s.selectedOption === 'normalOption';
-                    const hiddenFillBase = '#4a3728';
-                    const normalFillBase = UI.colors.primaryDark;
-                    const hiddenFill = (hiddenPressed || hiddenSelected) ? UI.darkenColor(hiddenFillBase, 18) : hiddenFillBase;
-                    const normalFill = (normalPressed || normalSelected) ? UI.darkenColor(normalFillBase, 18) : normalFillBase;
+                    const baseFill = UI.colors.primaryDark;
+                    const hiddenFill = (hiddenPressed || hiddenSelected) ? UI.darkenColor(baseFill, 18) : baseFill;
+                    const normalFill = (normalPressed || normalSelected) ? UI.darkenColor(baseFill, 18) : baseFill;
+
+                    const wrapButtonText = (text, maxWidth, maxLines) => {
+                        const t = text || '';
+                        const lines = [];
+                        ctx.save();
+                        ctx.font = `normal 13px "Microsoft YaHei", "PingFang SC", sans-serif`;
+                        let current = '';
+                        for (let i = 0; i < t.length; i++) {
+                            const ch = t[i];
+                            const testLine = current + ch;
+                            if (ctx.measureText(testLine).width > maxWidth && current) {
+                                lines.push(current);
+                                current = ch;
+                                if (lines.length >= maxLines) break;
+                            } else {
+                                current = testLine;
+                            }
+                        }
+                        if (lines.length < maxLines && current) lines.push(current);
+                        ctx.restore();
+                        return lines;
+                    };
 
                     Utils.drawRect(optX, optY1 - optH / 2, optW, optH, {
                         fill: hiddenFill,
-                        stroke: UI.colors.accentGold,
+                        stroke: UI.colors.primary,
                         strokeWidth: 2,
                         radius: 8
                     });
-                    Utils.drawText(encounter.hiddenOption.text, w / 2, optY1, {
-                        color: UI.colors.accentGold,
-                        size: 12,
-                        weight: 'bold'
-                    });
+                    {
+                        const lines = wrapButtonText(encounter.hiddenOption?.text, optW - 28, 2);
+                        const lineHeight = 16;
+                        const startY = optY1 - ((lines.length - 1) * lineHeight) / 2;
+                        lines.forEach((line, idx) => {
+                            Utils.drawText(line, w / 2, startY + idx * lineHeight, {
+                                color: UI.colors.textLight,
+                                size: 13,
+                                weight: 'normal'
+                            });
+                        });
+                    }
 
                     Utils.drawRect(optX, optY2 - optH / 2, optW, optH, {
                         fill: normalFill,
@@ -780,11 +841,18 @@ const Game = {
                         strokeWidth: 2,
                         radius: 8
                     });
-                    Utils.drawText(encounter.normalOption.text, w / 2, optY2, {
-                        color: UI.colors.textLight,
-                        size: 12,
-                        weight: 'normal'
-                    });
+                    {
+                        const lines = wrapButtonText(encounter.normalOption?.text, optW - 28, 2);
+                        const lineHeight = 16;
+                        const startY = optY2 - ((lines.length - 1) * lineHeight) / 2;
+                        lines.forEach((line, idx) => {
+                            Utils.drawText(line, w / 2, startY + idx * lineHeight, {
+                                color: UI.colors.textLight,
+                                size: 13,
+                                weight: 'normal'
+                            });
+                        });
+                    }
 
                     ctx.globalAlpha = 1;
                 }
@@ -822,6 +890,7 @@ const Game = {
 
                 if (s.selectedOption === null && (id === 'hiddenOption' || id === 'normalOption')) {
                     s.selectedOption = id;
+                    s.optionAlpha = 1;
                     const addProgress = 5; // 固定加5%
 
                     if (id === 'hiddenOption') {
@@ -968,35 +1037,34 @@ const Game = {
                         );
                     }
 
-                    const baseFillA = '#4a2828';
-                    const baseFillB = '#3a1818';
                     const optionAPressed = UI.pressedButton === 'optionA';
                     const optionBPressed = UI.pressedButton === 'optionB';
                     const optionASelected = s.selectedOption === 'optionA';
                     const optionBSelected = s.selectedOption === 'optionB';
-                    const fillA = (optionAPressed || optionASelected) ? UI.darkenColor(baseFillA, 18) : baseFillA;
-                    const fillB = (optionBPressed || optionBSelected) ? UI.darkenColor(baseFillB, 18) : baseFillB;
+                    const baseFill = UI.colors.primaryDark;
+                    const fillA = (optionAPressed || optionASelected) ? UI.darkenColor(baseFill, 18) : baseFill;
+                    const fillB = (optionBPressed || optionBSelected) ? UI.darkenColor(baseFill, 18) : baseFill;
 
                     Utils.drawRect(optX, optY1 - optH / 2, optW, optH, {
                         fill: fillA,
-                        stroke: '#aa6666',
+                        stroke: UI.colors.primary,
                         strokeWidth: 2,
                         radius: 8
                     });
                     Utils.drawText(s.options[0]?.text || '', w / 2, optY1, {
-                        color: '#ffcccc',
+                        color: UI.colors.textLight,
                         size: 13,
                         weight: 'normal'
                     });
 
                     Utils.drawRect(optX, optY2 - optH / 2, optW, optH, {
                         fill: fillB,
-                        stroke: '#884444',
+                        stroke: UI.colors.primary,
                         strokeWidth: 2,
                         radius: 8
                     });
                     Utils.drawText(s.options[1]?.text || '', w / 2, optY2, {
-                        color: '#ccaaaa',
+                        color: UI.colors.textLight,
                         size: 13,
                         weight: 'normal'
                     });
@@ -1062,6 +1130,7 @@ const Game = {
 
                 if (s.selectedOption === null && (id === 'optionA' || id === 'optionB')) {
                     s.selectedOption = id;
+                    s.optionAlpha = 1;
                     const option = s.options[id === 'optionA' ? 0 : 1];
 
                     if (option.stable) {
@@ -1072,6 +1141,7 @@ const Game = {
                         if (s.questionIndex < 5) {
                             s.questionIndex++;
                             s.questionAlpha = 0;
+                            s.optionAlpha = 0;
                             s.options = [];
                             s.selectedOption = null;
                         } else {
@@ -1327,11 +1397,56 @@ const Game = {
                     ctx.restore();
 
                     const mw = w * 0.84;
-                    const mh = h * 0.28;
+                    let mh = h * 0.28;
                     const mx = (w - mw) / 2;
-                    const my = h * 0.36;
+                    let my = h * 0.36;
                     const buttonW = mw * 0.42;
                     const buttonH = 44;
+
+                    const relic = Game.state.relic;
+                    const encounter = relic ? GameData.encounters.find(e => e.id === relic.encounterId) : null;
+
+                    const wrapText = (text, maxWidth, font, maxLines) => {
+                        const t = text || '';
+                        const lines = [];
+
+                        ctx.save();
+                        ctx.font = font;
+
+                        let current = '';
+                        for (let i = 0; i < t.length; i++) {
+                            const ch = t[i];
+                            const testLine = current + ch;
+                            if (ctx.measureText(testLine).width > maxWidth && current) {
+                                lines.push(current);
+                                current = ch;
+                                if (lines.length >= maxLines) break;
+                            } else {
+                                current = testLine;
+                            }
+                        }
+
+                        if (lines.length < maxLines && current) lines.push(current);
+                        ctx.restore();
+                        return lines;
+                    };
+
+                    if (s.mode === 'relicBranch' && encounter) {
+                        const paddingX = 18;
+                        const paddingTop = 20;
+                        const paddingBottom = 18;
+                        const innerW = mw - paddingX * 2;
+                        const questionFont = `bold 13px "Microsoft YaHei", "PingFang SC", sans-serif`;
+                        const lineHeight = 18;
+                        const questionLines = wrapText(encounter.branchQuestion || '是否进入？', innerW, questionFont, 3);
+
+                        const bh = 44;
+                        const gap1 = 14;
+                        const gap2 = 12;
+                        const contentH = paddingTop + questionLines.length * lineHeight + gap1 + bh + gap2 + bh + paddingBottom;
+                        mh = Math.max(h * 0.28, Math.min(h * 0.42, contentH));
+                        my = (h - mh) / 2;
+                    }
 
                     Utils.drawRect(mx, my, mw, mh, {
                         fill: UI.colors.backgroundDark,
@@ -1339,9 +1454,6 @@ const Game = {
                         strokeWidth: 2,
                         radius: 12
                     });
-
-                    const relic = Game.state.relic;
-                    const encounter = relic ? GameData.encounters.find(e => e.id === relic.encounterId) : null;
 
                     if (s.mode === 'relicPrompt' && relic) {
                         const title = `检测到你持有：${relic.emoji || '✨'} ${relic.name || '信物'}`;
@@ -1378,13 +1490,32 @@ const Game = {
                     }
 
                     if (s.mode === 'relicBranch' && encounter) {
-                        Utils.drawText(encounter.branchQuestion || '是否进入？', w / 2, my + 56, { color: '#c080ff', size: 13, weight: 'bold' });
-
-                        const y1 = my + 118;
-                        const y2 = my + 174;
-                        const bx = mx + mw * 0.06;
-                        const bw = mw * 0.88;
+                        const paddingX = 18;
+                        const paddingTop = 20;
+                        const innerW = mw - paddingX * 2;
+                        const bx = mx + paddingX;
+                        const bw = innerW;
                         const bh = 44;
+                        const optionPaddingX = 14;
+                        const optionInnerW = bw - optionPaddingX * 2;
+
+                        const questionFont = `bold 13px "Microsoft YaHei", "PingFang SC", sans-serif`;
+                        const questionLineHeight = 18;
+                        const questionLines = wrapText(encounter.branchQuestion || '是否进入？', innerW, questionFont, 3);
+
+                        let cursorY = my + paddingTop + questionLineHeight / 2;
+                        questionLines.forEach((line, idx) => {
+                            Utils.drawText(line, w / 2, cursorY + idx * questionLineHeight, {
+                                color: '#c080ff',
+                                size: 13,
+                                weight: 'bold'
+                            });
+                        });
+
+                        cursorY += questionLines.length * questionLineHeight + 14;
+
+                        const y1 = cursorY + bh / 2;
+                        const y2 = y1 + bh + 12;
 
                         UI.animationState.buttons.push(
                             { id: 'branchA', x: bx, y: y1 - bh / 2, w: bw, h: bh },
@@ -1400,7 +1531,15 @@ const Game = {
                             strokeWidth: 2,
                             radius: 8
                         });
-                        Utils.drawText(encounter.branchOptionA?.text || '选项A', bx + bw / 2, y1, { color: '#c080ff', size: 12, weight: 'bold' });
+                        {
+                            const optionFont = `bold 12px "Microsoft YaHei", "PingFang SC", sans-serif`;
+                            const optionLineHeight = 16;
+                            const lines = wrapText(encounter.branchOptionA?.text || '选项A', optionInnerW, optionFont, 2);
+                            const startY = y1 - ((lines.length - 1) * optionLineHeight) / 2;
+                            lines.forEach((line, idx) => {
+                                Utils.drawText(line, bx + bw / 2, startY + idx * optionLineHeight, { color: '#c080ff', size: 12, weight: 'bold' });
+                            });
+                        }
 
                         Utils.drawRect(bx, y2 - bh / 2, bw, bh, {
                             fill: bPressed ? UI.darkenColor('#2d1538', 18) : '#2d1538',
@@ -1408,7 +1547,15 @@ const Game = {
                             strokeWidth: 2,
                             radius: 8
                         });
-                        Utils.drawText(encounter.branchOptionB?.text || '选项B', bx + bw / 2, y2, { color: '#d1b3ff', size: 12, weight: 'normal' });
+                        {
+                            const optionFont = `normal 12px "Microsoft YaHei", "PingFang SC", sans-serif`;
+                            const optionLineHeight = 16;
+                            const lines = wrapText(encounter.branchOptionB?.text || '选项B', optionInnerW, optionFont, 2);
+                            const startY = y2 - ((lines.length - 1) * optionLineHeight) / 2;
+                            lines.forEach((line, idx) => {
+                                Utils.drawText(line, bx + bw / 2, startY + idx * optionLineHeight, { color: '#d1b3ff', size: 12, weight: 'normal' });
+                            });
+                        }
                     }
 
                     if (s.mode === 'relicFail') {
