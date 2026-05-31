@@ -50,6 +50,12 @@ const UI = {
         this.animationState.textElements = [];
         this.images.startBg = new Image();
         this.images.startBg.src = './images/bg/bg.jpg';
+        this.images.landBg = new Image();
+        this.images.landBg.src = './images/bg/land_bg.jpg';
+        this.images.seaBg = new Image();
+        this.images.seaBg.src = './images/bg/sea_bg.jpg';
+        this.images.skyBg = new Image();
+        this.images.skyBg.src = './images/bg/sky_bg.jpg';
     },
     
     drawBackground() {
@@ -78,6 +84,39 @@ const UI = {
             ctx.fill();
         }
         ctx.globalAlpha = 1;
+    },
+
+    drawRouteBackground(raceId) {
+        const ctx = Utils.ctx;
+        const w = Utils.width;
+        const h = Utils.height;
+
+        let bg = null;
+        if (raceId === 'smilodon') bg = this.images.landBg;
+        if (raceId === 'dunkleosteus') bg = this.images.seaBg;
+        if (raceId === 'confuciusornis') bg = this.images.skyBg;
+
+        if (!(bg && bg.complete && bg.naturalWidth > 0)) {
+            this.drawBackground();
+            return;
+        }
+
+        const imgW = bg.naturalWidth;
+        const imgH = bg.naturalHeight;
+        const imgAspect = imgW / imgH;
+        const canvasAspect = w / h;
+        let sx = 0, sy = 0, sw = imgW, sh = imgH;
+        if (imgAspect > canvasAspect) {
+            sw = imgH * canvasAspect;
+            sx = (imgW - sw) / 2;
+        } else {
+            sh = imgW / canvasAspect;
+            sy = (imgH - sh) / 2;
+        }
+        ctx.drawImage(bg, sx, sy, sw, sh, 0, 0, w, h);
+
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(0, 0, w, h);
     },
     
     drawRitualCircle(x, y, radius, time, intensity = 1) {

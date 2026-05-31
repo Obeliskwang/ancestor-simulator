@@ -244,7 +244,7 @@ const Game = {
                 const h = Utils.height;
                 const ctx = Utils.ctx;
 
-                UI.drawBackground();
+                UI.drawRouteBackground(Game.state.selectedRace?.id);
                 UI.drawProgressBar(Game.state.progress, time);
 
                 const s = Game.state.screenState;
@@ -481,7 +481,7 @@ const Game = {
                 const h = Utils.height;
                 const ctx = Utils.ctx;
 
-                UI.drawBackground();
+                UI.drawRouteBackground(Game.state.selectedRace?.id);
                 UI.drawProgressBar(Game.state.progress, time);
 
                 const s = Game.state.screenState;
@@ -704,7 +704,7 @@ const Game = {
                 const h = Utils.height;
                 const ctx = Utils.ctx;
 
-                UI.drawBackground();
+                UI.drawRouteBackground(Game.state.selectedRace?.id);
                 UI.drawProgressBar(Game.state.progress, time);
 
                 const s = Game.state.screenState;
@@ -985,12 +985,13 @@ const Game = {
 
                 ctx.globalAlpha = 1;
 
-                const gradient = Utils.drawGradient(0, 0, 0, h, [
-                    '#1a0808',
-                    '#2d1010',
-                    '#1a0808'
+                UI.drawRouteBackground(Game.state.selectedRace?.id);
+                const hazard = Utils.drawGradient(0, 0, 0, h, [
+                    'rgba(120,20,20,0.18)',
+                    'rgba(80,0,0,0.12)',
+                    'rgba(120,20,20,0.18)'
                 ]);
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = hazard;
                 ctx.fillRect(0, 0, w, h);
 
                 UI.drawProgressBar(Game.state.progress, time);
